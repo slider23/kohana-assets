@@ -1,0 +1,5 @@
+<?php
+
+Assets::init();
+
+?>
