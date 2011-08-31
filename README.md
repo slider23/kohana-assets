@@ -47,16 +47,13 @@ Assuming default configuration, when an asset is requested, e.g.
 
   - If the asset has already been compiled, it'll exist in the `DOCROOT/assets/`
     folder and be served directly by Apache.
-  - Otherwise, the following are possible source files in `APPATH/assets/`:
-      - A single file `css/default.(css|less)`.
-      - All `\*.(css|less)` files directly under the directory `css/default/`.
+  - Otherwise, it'll look for APPPATH/assets/css/default.(css|less).
   - The source files are compiled and written to `DOCROOT/assets/default.css`.
 
 This is the same for JavaScript (.js) assets. Output is minified and, depending
-on your Kohana configuration, gzipped.
-
-For assets that do not need to be compiled (e.g. images), a symbolic link is
-created to the source in `DOCROOT/assets/`.
+on your Kohana configuration, gzipped. For assets that do not need to be 
+compiled (e.g. images), a symbolic link is created to the source in 
+`DOCROOT/assets/`.
 
 Caveats
 -------

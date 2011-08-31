@@ -93,7 +93,7 @@ class Assets {
     $type = NULL;
 
     // Source path and extension.
-    list($path, $ext) = self::ext(self::$config->source_dir . $target, FALSE);
+    list($path, $ext) = self::ext(self::$config->source_dir.$target, FALSE);
 
     if ($ext)
     {
@@ -106,11 +106,11 @@ class Assets {
 
       foreach ((array) $ext as $v)
       {
-        if (is_file($path . $v))
+        if (is_file($path.$v))
         {
           // Test for source files that may have a different extension than
           // what the final asset has, but are nonetheless part of it.
-          $source = array($path . $v);
+          $source = array($path.$v);
 
           break;
         }
