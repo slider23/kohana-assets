@@ -2,7 +2,7 @@
 
 Easy & efficient asset management for Kohana 3.2. 
 
-## Features
+### Features
 
   - CSS and JavaScript minification
   - [Less](http://leafo.net/lessphp/) support built in
@@ -12,9 +12,9 @@ Easy & efficient asset management for Kohana 3.2.
   - Multiple source files into a single asset
   - Easy extensibility
 
-## Install, config, & usage
+### Get
 
-Pull the repository into `MODPATH/assets/` and enable the module in your 
-`bootstrap.php`, then have a look at the user guide.
+Pull the repository into `MODPATH/assets/`, enable the module in your 
+`bootstrap.php`, and have a look at the user guide.
 
 
