@@ -1,6 +1,13 @@
-# kohana-assets
+# Assets
 
-Easy & efficient asset management for Kohana 3.2. 
+Easy & efficient asset management. Links: [author](http://alxlit.name),
+[repository](http://www.github.com/alxlit/kohana-assets).
+
+## What does it do?
+
+It automatically compiles CSS and JavaScript assets (minifying and combining
+sources), and can be extended to add a compilation step for other types of 
+assets.
 
 ## Features
 
@@ -11,10 +18,4 @@ Easy & efficient asset management for Kohana 3.2.
   - Efficient; assets are compiled once, cached, and served directly
   - Multiple source files into a single asset
   - Easy extensibility
-
-## Install, config, & usage
-
-Pull the repository into `MODPATH/assets/` and enable the module in your 
-`bootstrap.php`, then have a look at the user guide.
-
 
