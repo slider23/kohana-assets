@@ -1,33 +1,42 @@
 <?php
 
-return array(
+return array
+(
+  'sources' => APPPATH.'assets/',
+  'targets' => DOCROOT.'assets/',
 
-  // Check if asset source files have been modified since the last time 
-  // Assets::init was called.
-  'check_assets' => Kohana::$environment === Kohana::DEVELOPMENT,
+  // Enable watching source files for modifications.
+  'watch' => Kohana::$environment === Kohana::DEVELOPMENT,
 
-  'ext' => array(
+  // Specify source folders that can be compiled and sent as a single asset.
+  // Note that individual files can still be accessed.
+  'compile_folders' => array(),
 
-    // File types that might compile into a stylesheet.
-    'css'  => array('.less', '.css'),
-
-    'js'   => array('.js'),
-    'less' => array('.less'),
-
+  // Source types; these require compilation into one of the target_types and
+  // cannot be accessed directly.
+  'types' => array
+  (
+    'coffee'    => array('.coffee'),
+    'css'       => array('.css'),
+    'js'        => array('.js'),
+    'less'      => array('.less'),
+    'markdown'  => array('.md', '.mkd', '.markdown')
   ),
 
-  'source_dir' => APPPATH.'assets/',
+  // After compiling, the target asset will end up being one of these types.
+  'target_types' => array
+  (
+    'css' => array('css', 'less'),
+    'js'  => array('js', 'coffee'),
+  ),
 
-  // This must be a directory in the DOCROOT, otherwise routing will mess up.
-  'target_dir' => DOCROOT.'assets/',
-
-  // Vendor library shortcuts.
-  'vendor' => array(
+  // Vendor library paths.
+  'vendor' => array
+  (
     'cssmin'  => MODPATH.'assets/vendor/cssmin.php',
     'jsmin'   => MODPATH.'assets/vendor/jsmin.php',
-    'lessphp' => MODPATH.'assets/vendor/lessphp/lessc.inc.php',
+    'lessphp' => MODPATH.'assets/vendor/lessphp/lessc.inc.php'
   )
-
 );
 
 ?>

@@ -1,161 +1,193 @@
 <?php
 
 /**
- * Helper functions.
+ * Helper functions
  *
  * @package  Assets
- * @author   Alex Little (alxlit.github.com)
- * @version  0.1
+ * @author   Alex Little (alxlit.name)
+ * @license  MIT
  */
 class Assets {
 
-  static $config, $vendor;
+  static $config;
 
-  /**
-   * Compile a CSS asset.
-   *
-   * @param   array   $source   Asset source files.
-   * @param   string  $output   Output is appended to this string.
-   *
-   * @return  string  The compiled CSS asset.
-   */
-  static function compile_css(array $source, $output = '')
+  static function compile_coffee($source)
   {
-    require_once self::$vendor->cssmin;
-
-    for ($i = 0; $i < count($source); $i++)
-    {
-      $dir = dirname($source[$i]);
-      $raw = file_get_contents($source[$i]);
-
-      if (in_array(self::ext($source[$i]), self::$config->ext['less']))
-      {
-        require_once self::$vendor->lessphp;
-
-        $less = new lessc();
-
-        // Enable merging @imports (see below).
-        $less->importDisabled = FALSE;
-        $less->importDir = $dir;
-
-        $raw = $less->parse($raw);
-      }
-
-      // Minify the output. Note that @imports are enabled, but with the caveat
-      // that they can't be checked for modifications.
-      $output.= CssMin::minify($raw, array('ImportImports' => array('BasePath' => $dir)));
-    }
-
-    return $output;
+    throw new Exception('CoffeeScript not yet supported');
   }
 
-  /**
-   * Compile a JavaScript asset.
-   */
-  static function compile_js(array $source, $output = '')
+  static function compile_css(array $files)
   {
-    require_once self::$vendor->jsmin;
+    require_once self::$config->vendor['cssmin'];
 
-    for ($i = 0; $i < count($source); $i++)
+    $result = '';
+
+    foreach ($files as $f)
     {
-      $output.= file_get_contents($source[$i]);
+      $result.= CssMin::minify(file_get_contents($f));
     }
 
-    return JSMin::minify($output);
+    return $result;
   }
 
-  /**
-   * Get the file extension from a file path. Optionally, also return the
-   * original path without it.
-   */
-  static function ext($path, $ext_only = TRUE)
+  static function compile_js(array $files)
   {
-    $ext = '.'.pathinfo($path, PATHINFO_EXTENSION);
+    require_once self::$config->vendor['jsmin'];
 
-    if ($ext)
+    $result = '';
+
+    foreach ($files as $f)
     {
-      $path = substr($path, 0, -strlen($ext));
+      $result.= file_get_contents($f);
     }
 
-    return $ext_only ? $ext : array($path, $ext);
+    return JSMin::minify($result);
   }
 
+  static function compile_less(array $files)
+  {
+    require_once self::$config->vendor['lessphp'];
+    $less = new lessc();
+
+    $result = '';
+
+    foreach ($files as $f)
+    {
+      $less->importDisabled = FALSE;
+      $less->importDir = dirname($f);
+
+      $result.= $less->parse(file_get_contents($f));
+    }
+
+    return $result;
+  }
+
+  static function compile_markdown(array $files)
+  {
+    throw new Exception('Markdown not yet supported');
+  }
+
+  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
   /**
-   * Find an asset.
+   * Find the source files for a target asset.
    *
-   * @return  mixed   FALSE or array( type, array sources )
+   * @param  string  $target  Requested asset (e.g. assets/css/default.css)
+   *
+   * @return  array  List of source files array(type => files) or FALSE.
    */
   static function find($target)
   {
-    $source = FALSE;
+    $path = pathinfo($target);
+    $path['pathname'] = "{$path['dirname']}/{$path['filename']}";
 
-    // The asset type.
-    $type = NULL;
+    $cfg = self::$config;
 
-    // Source path and extension.
-    list($path, $ext) = self::ext(self::$config->source_dir.$target, FALSE);
+    $sources = FALSE;
 
-    if ($ext)
+    if ($type = self::type($path['extension']))
     {
-      $type = substr($ext, 1);
-
-      if (isset(self::$config->ext[$type]))
+      if (isset($cfg->target_types[$type]))
       {
-        $ext = array_merge(array($ext), self::$config->ext[$type]);
-      }
+        $source_path = "{$cfg->sources}/{$path['pathname']}";
 
-      foreach ((array) $ext as $v)
-      {
-        if (is_file($path.$v))
+        // Try to find source file from known extensions
+        foreach ($source_ext = self::ext($cfg->target_types[$type]) as $ext)
         {
-          // Test for source files that may have a different extension than
-          // what the final asset has, but are nonetheless part of it.
-          $source = array($path.$v);
+          if (is_file($f = $source_path.$ext))
+          {
+            $sources = $f;
+            break;
+          }
+        }
 
-          break;
+        if ( ! $sources
+          && is_dir($source_path)
+          && in_array($path['pathname'], $cfg->compile_folders) )
+        {
+          $sources = self::ls($source_path, $source_ext);
         }
       }
-
-      // Couldn't find any files. Perhaps it's a directory.
-      if ( ! $source && is_dir($path))
-      {
-        $source = self::ls($path, (array) $ext);
-      }
+    }
+    else
+    {
+      // No compilation step
+      $sources = $cfg->sources.$target;
     }
 
-    return array($source, $type);
+    if ($sources)
+    {
+      $tmp = array();
+
+      foreach ((array) $sources as $source)
+      {
+        // Organize sources by type
+        $tmp[self::type('.'.pathinfo($source, PATHINFO_EXTENSION))][] = $source;
+      }
+
+      $sources = $tmp;
+    }
+
+    return $sources;
   }
 
   /**
-   * Initialize.
+   * Get the file extension(s) for the given type(s).
+   */
+  static function ext($types)
+  {
+    $ext = array();
+
+    foreach ((array) $types as $type)
+    {
+      $ext = array_merge($ext, self::$config->types[$type]);
+    }
+
+    return $ext;
+  }
+
+  /**
+   * Determine the type given a file extension.
+   */
+  static function type($ext)
+  {
+    foreach (self::$config->types as $type => $extensions)
+    {
+      if (in_array($ext, $extensions))
+      {
+        return $type;
+      }
+    }
+
+    return NULL;
+  }
+
+  /**
+   * Check for modifications (if enabled) and set asset route.
    */
   static function init()
   {
     self::$config = Kohana::$config->load('assets');
 
-    // Shortcut to vendor locations.
-    self::$vendor = (object) self::$config->vendor;
-
-    if (self::$config->check_assets)
+    if (self::$config->watch)
     {
-      // Assets to check.
-      $assets = self::ls(self::$config->target_dir, NULL, TRUE);
+      $assets = self::ls(self::$config->targets, NULL, TRUE);
 
-      for ($i = 0; $i < count($assets); $i++)
+      foreach ($assets as $asset)
       {
-        if (self::modified($assets[$i]))
+        if (self::modified($asset))
         {
-          // The asset has been modified. Delete it so that next time it's
-          // requested it'll be recompiled.
-          unlink($assets[$i]);
+          // The asset has been modified; delete it (it'll be recompiled next
+          // time it is requested)
+          unlink($asset);
         }
       }
     }
 
-    $dir = basename(self::$config->target_dir);
+    $dir = basename(self::$config->targets);
 
     // Set route.
-    Route::set('assets', $dir.'/<target>', array('target' => '.+'))
+    Route::set('assets', "{$dir}/<target>", array('target' => '.+'))
       ->defaults(array(
           'controller' => 'assets',
           'action'     => 'serve'
@@ -163,16 +195,16 @@ class Assets {
   }
 
   /**
-   * List the files in a directory. Optionally, filter by file extension and
+   * List files in a directory. Optionally filter for file extensions and 
    * recurse into sub-directories.
    *
-   * @param   string    $dir  The directory.
-   * @param   array     $ext  List only files that have these extensions.
-   * @param   boolean   $r    List files recursively.
+   * @param  string   $dir
+   * @param  array    $extensions
+   * @param  boolean  $recurse
    *
-   * @return  array   List of files in the directory.
+   * @return  array  List of files
    */
-  static function ls($dir, array $ext = NULL, $r = FALSE)
+  static function ls($dir, array $extensions = NULL, $recurse = FALSE)
   {
     $files = array();
 
@@ -182,15 +214,14 @@ class Assets {
       {
         if ($file->isFile())
         {
-          if ($ext === NULL || in_array(self::ext($file->getFilename()), $ext))
+          if ($extensions === NULL || in_array($file->getExtension(), $extensions))
           {
             $files[] = $file->getPathname();
           }
         }
-        elseif ($file->isDir() && ! $file->isDot() && $r)
+        else if ($file->isDir() && ! $file->isDot() && $recurse)
         {
-          // Recurse into sub-directories.
-          $files = array_merge($files, self::ls($file->getPathname(), $ext, TRUE));
+          $files = array_merge($files, self::ls($file->getPathname(), $extensions, TRUE));
         }
       }
     }
@@ -203,32 +234,30 @@ class Assets {
   }
 
   /**
-   * Check if the asset is ready to be served by checking whether any of the
-   * sources have been modified.
+   * Check whether the source files for an asset have been modified since the
+   * last time they were compiled.
    *
-   * @param   string    $target   The target asset (path).
-   * @param   array     $souce    The target's source files (optional).
+   * @param  string  $target
    *
-   * @return  boolean   Whether the souce files have been modified since the 
-   *                    target was last compiled.
+   * @return  boolean
    */
-  static function modified($target, array $source = NULL)
+  static function modified($target)
   {
     if (is_file($target))
     {
       $target_modified = filemtime($target);
 
-      if ($source === NULL)
-      {
-        // Sources not given, find them.
-        list($source, ) = self::find(substr($target, strlen(self::$config->target_dir)));
-      }
+      // Fetch source files
+      $sources = self::find(substr($target, strlen(self::$config->targets)));
 
-      for ($i = 0; $i < count($source); $i++)
+      if ($sources)
       {
-        if (filemtime($source[$i]) > $target_modified)
+        foreach (Arr::flatten($sources) as $source)
         {
-          return TRUE;
+          if (filemtime($source) > $target_modified)
+          {
+            return TRUE;
+          }
         }
       }
     }
