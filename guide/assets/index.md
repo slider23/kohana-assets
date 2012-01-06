@@ -13,8 +13,7 @@ assets.
 
   - CSS and JavaScript minification
   - [Less](http://leafo.net/lessphp/) support built in
-  - [CoffeeScript](http://github.com/alxlit/coffeescript-php) and 
-    [Markdown](http://michelf.com/projects/php-markdown/) support eventually
+  - [CoffeeScript](http://github.com/alxlit/coffeescript-php) support eventually
   - Efficient; assets are compiled once, cached, and served directly
   - Multiple source files into a single asset
   - Easy extensibility

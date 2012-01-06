@@ -9,4 +9,4 @@ When an asset is requested, e.g. `assets/css/default.css`:
      `DOCROOT/assets/default.css`
 
 Source file types can be added/removed in the config. Assets that have multiple source
-files can also be specified in the config.
+files can also be specified in the config (see [usage](usage)).
