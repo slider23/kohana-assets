@@ -20,7 +20,6 @@ return array
     'css'       => array('.css'),
     'js'        => array('.js'),
     'less'      => array('.less'),
-    'markdown'  => array('.md', '.mkd', '.markdown')
   ),
 
   // After compiling, the target asset will end up being one of these types.
