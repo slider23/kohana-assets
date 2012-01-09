@@ -10,7 +10,8 @@ class Kohana_Controller_Assets extends Controller {
 
   public function action_default()
   {
-    $sources = Assets::find($target = $this->request->param('target'));
+    $target = $this->request->param('target');
+    $sources = Assets::find($target);
 
     if ($sources)
     {

@@ -10,11 +10,15 @@ class Kohana_Assets {
 
   static $config;
 
+  /**
+   */
   static function compile_coffee($source)
   {
     throw new Exception('CoffeeScript not yet supported');
   }
 
+  /**
+   */
   static function compile_css(array $files)
   {
     require_once self::$config->vendor['cssmin'];
@@ -29,9 +33,11 @@ class Kohana_Assets {
     return $result;
   }
 
+  /**
+   */
   static function compile_js(array $files)
   {
-    require_once self::$config->vendor['jsmin'];
+    require_once self::$config->vendor['jsminplus'];
 
     $result = '';
 
@@ -40,9 +46,11 @@ class Kohana_Assets {
       $result.= file_get_contents($f);
     }
 
-    return JSMin::minify($result);
+    return JSMinPlus::minify($result);
   }
 
+  /**
+   */
   static function compile_less(array $files)
   {
     require_once self::$config->vendor['lessphp'];
@@ -62,8 +70,6 @@ class Kohana_Assets {
 
     return CssMin::minify($result);
   }
-
-  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
   /**
    * Find the source files for a target asset.

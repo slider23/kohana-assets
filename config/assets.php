@@ -32,9 +32,10 @@ return array
   // Vendor library paths.
   'vendor' => array
   (
-    'cssmin'  => MODPATH.'assets/vendor/cssmin.php',
-    'jsmin'   => MODPATH.'assets/vendor/jsmin.php',
-    'lessphp' => MODPATH.'assets/vendor/lessphp/lessc.inc.php'
+    'cssmin'    => MODPATH.'assets/vendor/cssmin.php',
+    'jsmin'     => MODPATH.'assets/vendor/jsmin.php',
+    'jsminplus' => MODPATH.'assets/vendor/jsminplus.php',
+    'lessphp'   => MODPATH.'assets/vendor/lessphp/lessc.inc.php'
   )
 );
 
