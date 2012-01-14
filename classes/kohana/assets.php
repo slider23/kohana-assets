@@ -12,7 +12,7 @@ class Kohana_Assets {
 
   /**
    */
-  static function compile_coffee($source)
+  static function compile_coffee(array $files)
   {
     throw new Exception('CoffeeScript not yet supported');
   }
@@ -107,6 +107,7 @@ class Kohana_Assets {
           && is_dir($source_path)
           && in_array($path['pathname'], $cfg->compile_folders) )
         {
+          // Multiple sources
           $sources = self::ls($source_path, $source_ext);
         }
       }
@@ -194,7 +195,7 @@ class Kohana_Assets {
     Route::set('assets', "{$dir}/<target>", array('target' => '.+'))
       ->defaults(array(
           'controller' => 'assets',
-          'action'     => 'default'
+          'action'     => 'serve'
         ));
   }
 

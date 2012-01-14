@@ -8,9 +8,11 @@
  */
 class Kohana_Controller_Assets extends Controller {
 
-  public function action_default()
+  public function action_serve()
   {
     $target = $this->request->param('target');
+
+    // Attempt to find source files for the requested asset
     $sources = Assets::find($target);
 
     if ($sources)
@@ -26,8 +28,8 @@ class Kohana_Controller_Assets extends Controller {
         {
           if ( ! $type)
           {
-            // Simple, single-source asset with no compilation step. Just link
-            // to it and we're done.
+            // Simple, single-source asset with no compilation step; just link
+            // to it and we're done
             symlink($source[0], $path);
           }
           else if (is_callable($fn = "Assets::compile_$type"))
