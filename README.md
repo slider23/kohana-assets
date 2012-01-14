@@ -22,4 +22,7 @@ Pull the repository into `MODPATH/assets/`, enable the module in your
 There are plenty of asset managers for Kohana. Depending on your needs you might
 find one of these preferable:
 
-  - 
+  - [kohana-assets](https://github.com/Zeelot/kohana-assets) (zeelot) lets you
+    define groups and per-view dependencies
+  - [kohana-assetic](https://github.com/julianhille/kohana-assetic) (julianhille)
+    probably has the most features
