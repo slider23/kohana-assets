@@ -26,3 +26,4 @@ find one of these preferable:
     define groups and per-view dependencies
   - [kohana-assetic](https://github.com/julianhille/kohana-assetic) (julianhille)
     probably has the most features
+  - [...](https://github.com/search?type=Repositories&language=PHP&q=kohana-assets)
