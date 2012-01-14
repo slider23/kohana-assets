@@ -20,13 +20,6 @@ return array
     'css' => array('css', 'less'),
     'js'  => array('js', 'coffee'),
   ),
-
-  'vendor' => array(
-    'cssmin'    => MODPATH.'assets/vendor/cssmin.php',
-    'jsmin'     => MODPATH.'assets/vendor/jsmin.php',
-    'jsminplus' => MODPATH.'assets/vendor/jsminplus.php',
-    'lessphp'   => MODPATH.'assets/vendor/lessphp/lessc.inc.php'
-  )
 );
 
 ?>

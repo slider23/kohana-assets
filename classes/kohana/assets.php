@@ -53,7 +53,7 @@ class Kohana_Assets {
    */
   static function compile_less(array $files)
   {
-    self::vendor(array('lessphp', 'cssmin'));
+    self::vendor(array('lessphp/lessc.inc', 'cssmin'));
 
     $result = '';
     $less = new lessc();
