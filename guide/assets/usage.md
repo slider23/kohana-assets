@@ -37,7 +37,7 @@ A quick example with the default config:
 
 Sometimes it's possible to really speed up your app by combining assets into a
 single large file rather than having to send multiple smaller ones. With
-**kohana-assets**, you can specify folders that can be compiled into a single 
+kohana-assets, you can specify folders that can be compiled into a single 
 asset in `assets.compile_folders`. An example:
 
 `APPPATH/assets/`:
