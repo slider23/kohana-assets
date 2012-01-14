@@ -1,7 +1,7 @@
 # Usage
 
 After [installing](install) and [setting up](config), simply drop your assets
-into the `assets.sources` directory and you're ready to go. 
+into the `sources` directory and you're ready to go.
 
 A quick example with the default config:
 
@@ -13,32 +13,32 @@ A quick example with the default config:
       lib/
         jquery.js
         jquery.plugin.js
-      init.js
+      main.js
 
 `APPPATH/views/template.php`:
 
     <!doctype html>
     <html>
       <head>
-        <title>Foo Bar, LLC</title>
         <?= HTML::style('assets/css/style.css') ?>
 
-        <?= HTML::script('assets/js/jquery.js') ?>
-        <?= HTML::script('assets/js/jquery.plugin.js') ?>
-        <?= HTML::script('assets/js/init.js') ?>
+        <title>Foo Bar, LLC</title>
+
+        <?= HTML::script('assets/js/lib/jquery.js') ?>
+        <?= HTML::script('assets/js/lib/jquery.plugin.js') ?>
+        <?= HTML::script('assets/js/main.js') ?>
       </head>
       <body>
-      ...
       </body>
     </html>
 
 
 ## Multi-source assets
 
-Sometimes it's possible to really speed up your app by combining assets into a
-single large file rather than having to send multiple smaller ones. With
-kohana-assets, you can specify folders that can be compiled into a single 
-asset in `assets.compile_folders`. An example:
+Sometimes it is possible to really speed up your app by combining assets into
+a single file, rather than having multiple smaller ones. In this regard 
+kohana-assets provides some very simplistic functionality by allows folders 
+specified in `compile_folders` to be compiled into a single asset. For example:
 
 `APPPATH/assets/`:
 
@@ -58,17 +58,18 @@ Then the asset `js/foo_chat.js` can be requested, and it'll consist of all the
 JavaScript (and CoffeeScript, if there were any) files in `APPPATH/assets/js/foo_chat`
 (but **not** in any subfolders).
 
-Note that individual files can still be accessed (e.g. `js/foo_chat/colors.js`).
+Individual files can still be accessed (e.g. `js/foo_chat/colors.js`).
 
 ## Caveats
 
-  - Note the source files for multi-source assets that use the `compile_folders`
-    option are compiled in ***no particular order***. For CSS this is unacceptable,
-    and should be kept in mind for JavaScript projects.
+  - The source files for multi-source assets that use the `compile_folders` 
+    option are compiled in **no particular order**. For CSS this is unacceptable,
+    and should be kept in mind if you plan to use it for JavaScript projects.
 
-  - In most cases it is preferable to use a compiler that uses directives when
-    combining sources (e.g. LESS can combine files based on `@import`).
-    **However**, there is currently no way for kohana-assets itself to know 
-    what those directives are, so its `watch` mode will not work as expected.
+  - For the above reason it is almost always preferable to have a compiler do it
+    based on directives in the source code (e.g. LESS can combine files based on
+    `@import`). **However, there is currently no way for compilers to communicate those
+    directives back to kohana-assets**, so the `watch` mode will not work as expected.
 
-
+  - There is currently **no support for multiple source directories,** meaning
+    modules can't have an assets directory and expect it to work.

@@ -1,10 +1,10 @@
 <?php
 
 /**
- * Helper functions
+ * Compilers and other helper functions.
  *
- * @author   Alex Little (alxlit.name)
  * @package  Assets
+ * @author   Alex Little
  */
 class Kohana_Assets {
 
@@ -21,7 +21,7 @@ class Kohana_Assets {
    */
   static function compile_css(array $files)
   {
-    require_once self::$config->vendor['cssmin'];
+    self::vendor('cssmin');
 
     $result = '';
 
@@ -37,7 +37,7 @@ class Kohana_Assets {
    */
   static function compile_js(array $files)
   {
-    require_once self::$config->vendor['jsminplus'];
+    self::vendor('jsminplus');
 
     $result = '';
 
@@ -53,12 +53,10 @@ class Kohana_Assets {
    */
   static function compile_less(array $files)
   {
-    require_once self::$config->vendor['lessphp'];
-    require_once self::$config->vendor['cssmin'];
-
-    $less = new lessc();
+    self::vendor(array('lessphp', 'cssmin'));
 
     $result = '';
+    $less = new lessc();
 
     foreach ($files as $f)
     {
@@ -74,13 +72,15 @@ class Kohana_Assets {
   /**
    * Find the source files for a target asset.
    *
-   * @param  string  $target  Requested asset (e.g. assets/css/default.css)
+   * @param  string  Requested asset (e.g. assets/css/default.css)
    *
    * @return  array  List of source files array(type => files) or FALSE.
    */
   static function find($target)
   {
     $path = pathinfo($target);
+
+    // Path without the file extension
     $path['pathname'] = "{$path['dirname']}/{$path['filename']}";
 
     $cfg = self::$config;
@@ -203,9 +203,9 @@ class Kohana_Assets {
    * List files in a directory. Optionally filter for file extensions and 
    * recurse into sub-directories.
    *
-   * @param  string   $dir
-   * @param  array    $extensions
-   * @param  boolean  $recurse
+   * @param  string
+   * @param  array
+   * @param  boolean
    *
    * @return  array  List of files
    */
@@ -244,7 +244,7 @@ class Kohana_Assets {
    * Check whether the source files for an asset have been modified since the
    * last time they were compiled.
    *
-   * @param  string  $target
+   * @param  string
    *
    * @return  boolean
    */
@@ -270,6 +270,17 @@ class Kohana_Assets {
     }
 
     return FALSE;
+  }
+
+  /**
+   * Find and require vendor libraries.
+   */
+  static function vendor($files)
+  {
+    foreach ((array) $files as $file)
+    {
+      require Kohana::find_file('vendor', $file);
+    }
   }
 
 }

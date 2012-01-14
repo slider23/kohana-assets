@@ -1,13 +1,15 @@
 <?php
 
 /**
- * Main controller
+ * Main controller.
  *
- * @author   Alex Little (alxlit.name)
  * @package  Assets
+ * @author   Alex Little
  */
 class Kohana_Controller_Assets extends Controller {
 
+  /**
+   */
   public function action_serve()
   {
     $target = $this->request->param('target');
@@ -43,7 +45,7 @@ class Kohana_Controller_Assets extends Controller {
           }
           else
           {
-            throw new HTTP_Exception_500("Missing compiler for type '$type'");
+            throw new Exception("Missing compiler for type '$type'");
           }
         }
 
