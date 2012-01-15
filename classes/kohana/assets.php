@@ -10,152 +10,114 @@ class Kohana_Assets {
 
   static $config;
 
-  /**
-   */
-  static function compile_coffee(array $files)
+  static function compile_coffee($source)
   {
     throw new Exception('CoffeeScript not yet supported');
   }
 
-  /**
-   */
-  static function compile_css(array $files)
+  static function compile_css($source)
   {
     self::vendor('cssmin');
 
-    $result = '';
-
-    foreach ($files as $f)
-    {
-      $result.= CssMin::minify(file_get_contents($f));
-    }
-
-    return $result;
+    return CssMin::minify( file_get_contents($source) );
   }
 
-  /**
-   */
-  static function compile_js(array $files)
+  static function compile_js($source)
   {
     self::vendor('jsminplus');
 
-    $result = '';
-
-    foreach ($files as $f)
-    {
-      $result.= file_get_contents($f);
-    }
-
-    return JSMinPlus::minify($result);
+    return JSMinPlus::minify( file_get_contents($source) );
   }
 
-  /**
-   */
-  static function compile_less(array $files)
+  static function compile_less($source)
   {
     self::vendor(array('lessphp/lessc.inc', 'cssmin'));
 
-    $result = '';
     $less = new lessc();
 
-    foreach ($files as $f)
-    {
-      $less->importDisabled = FALSE;
-      $less->importDir = dirname($f);
+    $less->importDisabled = FALSE;
+    $less->importDir = dirname($source);
 
-      $result.= $less->parse(file_get_contents($f));
-    }
-
-    return CssMin::minify($result);
+    return CssMin::minify( $less->parse( file_get_contents($source) ) );
   }
 
   /**
    * Find the source files for a target asset.
    *
-   * @param  string  Requested asset (e.g. assets/css/default.css)
+   * @param   string  Target asset (e.g. css/style.css)
    *
-   * @return  array  List of source files array(type => files) or FALSE.
+   * @return  array   Array containing the target's source files, or FALSE
    */
-  static function find($target)
+  static function find_sources($target)
   {
-    $path = pathinfo($target);
+    $target = pathinfo($target);
 
-    // Path without the file extension
-    $path['pathname'] = "{$path['dirname']}/{$path['filename']}";
+    $target += array
+    (
+      // Full path without the extension
+      'pathname' => "{$target['dirname']}/{$target['filename']}",
 
-    $cfg = self::$config;
+      // Target type
+      'type' => self::get_type($target['extension'])
+    );
 
-    $sources = FALSE;
+    $source = array
+    (
+      // Directory that will contain the source file(s)
+      'dirname' => self::$config->source_dir.$target['dirname'],
 
-    if ($type = self::type('.'.$path['extension']))
+      // Possible extension(s)
+      'extension' => $target['extension'],
+
+      // Possible type(s)
+      'type' => (array) Arr::get(self::$config->target_types, $target['type']),
+    );
+
+    if ($source['type'])
     {
-      if (isset($cfg->target_types[$type]))
-      {
-        $source_path = "{$cfg->sources}/{$path['pathname']}";
+      // It's a known type, so there is a compilation step possibly involving
+      // multiple sources of different types
+      $source['extension'] = self::get_type_ext($source['type']);
 
-        // Try to find source file from known extensions
-        foreach ($source_ext = self::ext($cfg->target_types[$type]) as $ext)
+      if (in_array($target['pathname'], self::$config->concatable))
+      {
+        foreach (Kohana::include_paths() as $dir)
         {
-          if (is_file($f = $source_path.$ext))
+          if (is_dir($dir.= $source['dirname']))
           {
-            $sources = $f;
-            break;
+            // Multiple sources
+            return self::ls($dir, $source['extension']);
           }
         }
-
-        if ( ! $sources
-          && is_dir($source_path)
-          && in_array($path['pathname'], $cfg->compile_folders) )
-        {
-          // Multiple sources
-          $sources = self::ls($source_path, $source_ext);
-        }
       }
     }
-    else if (is_file($f = $cfg->sources.$target))
-    {
-      // No compilation step
-      $sources = $f;
-    }
 
-    if ($sources)
+    foreach ((array) $source['extension'] as $ext)
     {
-      $tmp = array();
-
-      foreach ((array) $sources as $source)
+      if ($ext{0} === '.')
       {
-        $ext = '.'.pathinfo($source, PATHINFO_EXTENSION);
-
-        // Organize by type
-        $tmp[self::type($ext)][] = $source;
+        $ext = substr($ext, 1);
       }
 
-      $sources = $tmp;
+      if ($file = Kohana::find_file($source['dirname'], $target['filename'], $ext))
+      {
+        return array($file);
+      }
     }
 
-    return $sources;
-  }
-
-  /**
-   * Get the file extension(s) for the given type(s).
-   */
-  static function ext($types)
-  {
-    $ext = array();
-
-    foreach ((array) $types as $type)
-    {
-      $ext = array_merge($ext, self::$config->types[$type]);
-    }
-
-    return $ext;
+    return FALSE;
   }
 
   /**
    * Determine the type given a file extension.
    */
-  static function type($ext)
+  static function get_type($ext)
   {
+    if ($ext{0} !== '.')
+    {
+      $ext = ".{$ext}";
+    }
+
     foreach (self::$config->types as $type => $extensions)
     {
       if (in_array($ext, $extensions))
@@ -168,6 +130,21 @@ class Kohana_Assets {
   }
 
   /**
+   * Get the extension(s) for the given type(s).
+   */
+  static function get_type_ext($types)
+  {
+    $ext = array();
+
+    foreach ((array) $types as $type)
+    {
+      $ext = array_merge($ext, Arr::get(self::$config->types, $type, array()));
+    }
+
+    return $ext;
+  }
+
+  /**
    * Check for modifications (if enabled) and set asset route.
    */
   static function init()
@@ -176,20 +153,15 @@ class Kohana_Assets {
 
     if (self::$config->watch)
     {
-      $assets = self::ls(self::$config->targets, NULL, TRUE);
-
-      foreach ($assets as $asset)
+      foreach (self::ls(self::$config->target_dir, NULL, TRUE) as $asset)
       {
-        if (self::modified($asset))
-        {
-          // The asset has been modified; delete it (it'll be recompiled next
-          // time it is requested)
-          unlink($asset);
-        }
+        // Delete assets whose source files have changed (they'll be recompiled
+        // the next time they are requested).
+        self::modified($asset) && unlink($asset);
       }
     }
 
-    $dir = basename(self::$config->targets);
+    $dir = basename(self::$config->target_dir);
 
     // Set route.
     Route::set('assets', "{$dir}/<target>", array('target' => '.+'))
@@ -254,17 +226,14 @@ class Kohana_Assets {
     {
       $target_modified = filemtime($target);
 
-      // Fetch source files
-      $sources = self::find(substr($target, strlen(self::$config->targets)));
+      // Find source files
+      $sources = self::find_sources( substr($target, strlen(self::$config->target_dir)) );
 
-      if ($sources)
+      foreach ($sources as $source)
       {
-        foreach (Arr::flatten($sources) as $source)
+        if (filemtime($source) > $target_modified)
         {
-          if (filemtime($source) > $target_modified)
-          {
-            return TRUE;
-          }
+          return TRUE;
         }
       }
     }
@@ -273,13 +242,12 @@ class Kohana_Assets {
   }
 
   /**
-   * Find and require vendor libraries.
    */
   static function vendor($files)
   {
     foreach ((array) $files as $file)
     {
-      require Kohana::find_file('vendor', $file);
+      require_once Kohana::find_file('vendor', $file);
     }
   }
 
