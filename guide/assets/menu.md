@@ -3,5 +3,4 @@
 - [Install](install)
 - [Configuration](config)
 - [Usage](usage)
-- [Caveats](usage#caveats)
 - [Extending](extending)

@@ -20,19 +20,18 @@ using an external program.
     )
 
 **Step 2**: Create the compiler in `APPPATH/classes/assets.php`. The compiler
-should begin with  "compile\_." It takes an array containing the source file(s)
-for the asset and should return the **contents** of the final, compiled asset.
+should begin with  "compile\_." It should take the source file and return the
+**contents** of the final, compiled asset.
 
     class Assets extends Kohana_Assets {
 
-      function compile_png(array $files)
+      function compile_png($source)
       {
         // Create a temporary location to store the optimized image
         $tmp = tempnam('/tmp/', '');
 
-        // Since it doesn't make sense to compile multiple PNGs into a single image,
-        // there should only ever be one source file...
-        exec('optipng '.$files[0].' -out '.$tmp);
+        // Run
+        exec('optipng '.$source.' -out '.$tmp);
 
         // Return image
         return file_get_contents($tmp);
@@ -40,6 +39,6 @@ for the asset and should return the **contents** of the final, compiled asset.
 
     }
 
-**Step 3**: Clear the `assets.targets` directory.
+**Step 3**: Clear `target_dir` so that everything gets recompiled.
 
 

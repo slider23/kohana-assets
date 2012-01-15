@@ -2,12 +2,10 @@
 
 return array
 (
-  'sources' => APPPATH.'assets/',
-  'targets' => DOCROOT.'assets/',
+  'source_dir' => 'assets/',
+  'target_dir' =>  DOCROOT.'assets/',
 
-  'watch' => Kohana::$environment === Kohana::DEVELOPMENT,
-
-  'compile_folders' => array(),
+  'concatable' => array(),
 
   'types' => array(
     'coffee' => array('.coffee'),
@@ -20,6 +18,8 @@ return array
     'css' => array('css', 'less'),
     'js'  => array('js', 'coffee'),
   ),
+
+  'watch' => Kohana::$environment === Kohana::DEVELOPMENT,
 );
 
 ?>

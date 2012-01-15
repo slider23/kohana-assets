@@ -11,5 +11,6 @@ Easy & efficient asset management. Links: [author](http://alxlit.name),
   - Easy to use and extend
   - Efficient; assets are compiled once and served directly thereafter
   - Watch mode (checks for source modifications)
+  - Uses Kohana's cascading file system when sourcing assets
   - Multiple source files into a single asset
 
