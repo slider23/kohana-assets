@@ -38,7 +38,8 @@ A quick example with the default config:
 Sometimes it is possible to really speed up your app by combining assets into
 a single file, rather than having multiple smaller ones. In this regard 
 kohana-assets provides some very simplistic functionality by allows folders 
-specified in `concatable` to be compiled into a single asset. For example:
+specified in `concatable` to be compiled and concatenated into a single asset.
+For example:
 
 `APPPATH/assets/`:
 
@@ -52,7 +53,7 @@ specified in `concatable` to be compiled into a single asset. For example:
 
 `APPPATH/config/assets.php`:
 
-    'concatable' => array('js/foo_chat/')
+    'concatable' => array('js/foo_chat')
 
 Then the asset `js/foo_chat.js` can be requested, and it'll consist of all the
 JavaScript (and CoffeeScript, if there were any) files in `APPPATH/assets/js/foo_chat`
@@ -60,11 +61,11 @@ JavaScript (and CoffeeScript, if there were any) files in `APPPATH/assets/js/foo
 
 Individual files can still be accessed (e.g. `js/foo_chat/colors.js`).
 
-### Caveats
+## Caveats
 
-  - The source files for multi-source assets that use the `concatable` option
-    are put together in **no particular order**. For CSS this is unacceptable,
-    and should be kept in mind if you plan to use it for JavaScript projects.
+  - Files in `concatable` folders are concatenated in **no particular order**.
+    For CSS this is unacceptable, and should be kept in mind if you plan to use
+    it for JavaScript projects.
 
   - For the above reason it is almost always preferable to have a compiler do
     it based on directives in the source code (e.g. LESS can combine files
