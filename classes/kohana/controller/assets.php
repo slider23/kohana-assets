@@ -3,7 +3,7 @@
 /**
  * Main controller.
  *
- * @package  Assets
+ * @package  Kohana/Assets
  * @author   Alex Little
  */
 class Kohana_Controller_Assets extends Controller {

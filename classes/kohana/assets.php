@@ -3,7 +3,7 @@
 /**
  * Compilers and other helper functions.
  *
- * @package  Assets
+ * @package  Kohana/Assets
  * @author   Alex Little
  */
 class Kohana_Assets {
@@ -26,7 +26,9 @@ class Kohana_Assets {
   {
     self::vendor('jsminplus');
 
-    return JSMinPlus::minify( file_get_contents($source) );
+    // Strips end semi-colons, which can break multi-source assets; should try
+    // to find a better solution for this.
+    return JSMinPlus::minify( file_get_contents($source) ).';';
   }
 
   static function compile_less($source)
@@ -83,7 +85,7 @@ class Kohana_Assets {
       {
         foreach (Kohana::include_paths() as $dir)
         {
-          if (is_dir($dir.= $source['dirname']))
+          if (is_dir($dir.= $source['dirname'].'/'.$target['filename']))
           {
             // Multiple sources
             return self::ls($dir, $source['extension']);
@@ -101,6 +103,7 @@ class Kohana_Assets {
 
       if ($file = Kohana::find_file($source['dirname'], $target['filename'], $ext))
       {
+        // Single source
         return array($file);
       }
     }
@@ -229,7 +232,7 @@ class Kohana_Assets {
       // Find source files
       $sources = self::find_sources( substr($target, strlen(self::$config->target_dir)) );
 
-      foreach ($sources as $source)
+      foreach ((array) $sources as $source)
       {
         if (filemtime($source) > $target_modified)
         {
