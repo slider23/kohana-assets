@@ -37,7 +37,7 @@ A quick example with the default config:
 
 Sometimes it is possible to really speed up your app by combining assets into
 a single file, rather than having multiple smaller ones. In this regard 
-kohana-assets provides some very simplistic functionality by allows folders 
+kohana-assets provides some very simplistic functionality by allowing folders 
 specified in `concatable` to be compiled and concatenated into a single asset.
 For example:
 

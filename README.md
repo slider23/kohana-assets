@@ -15,16 +15,11 @@ Easy & efficient asset management for Kohana 3.
 
 ## Get it
 
-Pull the repository into `MODPATH/assets/`, enable the module in your 
+Clone the repository into `MODPATH/assets/`, enable the module in your
 `bootstrap.php`, and have a look at the user guide.
 
 ## See also
 
 There are plenty of asset managers for Kohana. Depending on your needs you might
-find one of these preferable:
-
-  - [kohana-assets](https://github.com/Zeelot/kohana-assets) (zeelot) lets you
-    define groups and per-view dependencies
-  - [kohana-assetic](https://github.com/julianhille/kohana-assetic) (julianhille)
-    probably has the most features
-  - [...](https://github.com/search?type=Repositories&language=PHP&q=kohana-assets)
+find [one of these](https://github.com/search?type=Repositories&language=PHP&q=kohana-assets)
+preferable.
